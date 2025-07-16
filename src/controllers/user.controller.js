@@ -60,7 +60,6 @@ const registerUser = asyncHandler(async(req,res)=>{
 });
 
 const loginUser = asyncHandler(async(req,res)=>{
-    console.log("request is coming here...");
        // {username , email} = req.body
        // validation
        // check user in mongodb
@@ -69,41 +68,38 @@ const loginUser = asyncHandler(async(req,res)=>{
        // access and refresh token 
        // response
 
-    //    const { username, email , password} = req.body;
-    //    if(!(username || email))throw new ApiError(400,"username or email is required");
-    //    const user = await User.findOne({
-    //       $or : [{username},{email}]
-    //    });
-    //    if(!user)throw new ApiError(404 ,"user not exist ");
-    //    const isValid = await user.isPasswordCorrect(password);
-    //    if(!isValid)throw new ApiError(401,"Invalid user credentail");
-    //    const {refreshToken , accessToken } = generateAccessAndRefreshTokens(user._id);
-    //    user.refreshToken = refreshToken ;
-    //    user.save({validateBeforeSave: false});
-    //    const loggedInUser = await User.findOne(user._id).select("-password -refreshToken");
+       const { username, email , password} = req.body;
+       if(!(username || email))throw new ApiError(400,"username or email is required");
+       const user = await User.findOne({
+          $or : [{username},{email}]
+       });
+       if(!user)throw new ApiError(404 ,"user not exist ");
+       const isValid = await user.isPasswordCorrect(password);
+       if(!isValid)throw new ApiError(401,"Invalid user credentail");
+       const {refreshToken , accessToken } = generateAccessAndRefreshTokens(user._id);
+       user.refreshToken = refreshToken ;
+       user.save({validateBeforeSave: false});
+       const loggedInUser = await User.findOne(user._id).select("-password -refreshToken");
 
-    //    const options = {
-    //      httpOnly : true ,
-    //      secure: true
-    //    }
+       const options = {
+         httpOnly : true ,
+         secure: true
+       }
        
-    //    return res.status(200)
-    //    .cookie("accessToken",accessToken,options)
-    //    .cookie("refreshToken",refreshToken,options)
-    //    .json(
-    //     new ApiResponse(200,
-    //         {
-    //         data : loggedInUser ,
-    //         accessToken,
-    //         refreshToken
-    //        },
-    //        "user logged In successfully"
-    //     )
-    //    )
-    res.json({
-        status :200,
-        message: "success"
-    });
+       return res.status(200)
+       .cookie("accessToken",accessToken,options)
+       .cookie("refreshToken",refreshToken,options)
+       .json(
+        new ApiResponse(200,
+            {
+            data : loggedInUser ,
+            accessToken,
+            refreshToken
+           },
+           "user logged In successfully"
+        )
+       )
+   
 });
 
 const logOut = asyncHandler(asyncHandler(async(req,res)=>{
